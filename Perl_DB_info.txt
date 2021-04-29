@@ -1,0 +1,83 @@
+##
+##
+##
+##
+## Advice from Quora, by: 
+## Eric Christian Hansen
+## , former Senior Systems Analyst (1999-2002)
+## Answered May 15, 2019
+## https://www.quora.com/Is-Perl-dead/answer/Eric-Christian-Hansen
+## https://www.quora.com/Is-Perl-dead
+
+
+## PERL is not dead, only those guardians of PerlMonks dot org, who lie in wait to bounce upon your most recent posts with spiteful replies loaded with falsehoods and hate and jealousy. Good luck trying to impart your acquired PERL knowledge there. They will do their very best to attempt to discredit you and your ideas.
+## I see PERL as replacing 3rd Party databases such as: Oracle, Microsoft SQL Server, and the like.
+## Pure PERL relational databases (ISAM/NoSQL) are free to implement and you don’t need a qualified DBA to manage them. Now, pure PERL business applications can be written to create/maintain embedded pure PERL databases, and provide the GUI DB user-interfaces for end-users to interact with those databases.
+## I recently upgraded from ActivePerl for Windows 5.6.1 to 5.26.1.
+## With 5.6.1 PERL developers were limited to 2-GIG (or perhaps 4-GIG) flat files of data for random access processing of records because of the INTEGER limitation on seeking to records for the positioning of the file pointer. Not so with 5.26.1 where flat files to at least 128-GIG in size (or larger) can have their records random accessed using the non-buffered I/O syntax: sysopen, sysseek, sysread, syswrite, and close.
+## Just one flat file (in a relational database of several or many flat files) may contain not only 100’s of millions of records, but even billions of records within each flat file. Access to any record is instantaneous.
+
+## INDEXING: use PERL dbm (e.g. SDBM) binary database files of Key/Value pairs (tied to in-memory PERL hash tables at run-time) to persistently and arbitrarily random access index the byte offsets of records within the flat files based upon the data within fields of the records. The KEY in the Key/Value pair will be composed of 1 or more fields and or partial fields of data within records… and the VALUE will hold the byte offset of a single record, or it will hold the byte offset to the first record in a group of related/sorted records - along with the number of records to contiguously read in within that group, or it will hold the number of records matching that particular ALTERNATE KEY WITH DUPLICATES so that you can process all the duplicate keys within a LOOP. These duplicate keys will point to records which are NOT contiguous with one another, but scattered at different locations within the flat files.
+
+
+## Example of ALTERNATE KEY (with Duplicates) indexing of a flat file:
+
+# key = LastNameFirst4|FirstNameInitial|Sex|DateOfBirth
+
+$record_length=0;
+
+while (<IN>) {
+
+if ($record_length == 0) {
+
+$byteoffset = $record_length;
+
+} else {
+
+$record_length = 512;
+
+$byteoffset += $record_length;
+
+}
+
+## parse the input record and extract info from fields used to build KEY
+
+$key = “Hansen|E|M|19591219”; # shown hard coded for simplicity
+
+if (! (exists $hash{$key})) {
+
+$hash{$key} = 0; #— create master/parent key
+
+} else {
+
+$hash{$key}++;
+
+$childkey = $key . “|” . $hash{$key}; #— create child keys
+
+$hash{$childkey}=$byteoffset; #— offset of record in the flat file
+
+}
+
+}
+
+## Example of random accessing a group of records matching a particular ALTERNATE KEY WITH DUPLICATES:
+
+$key = “Hansen|E|M|19591219”; # shown hard coded for simplicity
+
+$nbr_records = $hash{$key};
+
+for ($i=1; $i <= $nbr_records; $i++) {
+
+$childkey = $key . “|” . $i;
+
+$byteoffset = $hash{$childkey};
+
+sysseek(FH, $byteoffset, 0); # relative from top-of-file
+
+sysread(FH,$buffer,512);
+
+## do something with the record held in $buffer such as loading it into a ListView GUI widget for the end-user to select from to edit the record.
+
+}
+
+
