@@ -1,15 +1,16 @@
 ###!/usr/bin/perl.exe
 #
 # ppx pf1e perl - PPX PF1e Character Builder 
-# version 0.001a
+# version 0.002a (CORE+) NON-MYTHIC NON-PFS
 # https://github.com/ProphetPX/PF1eCharBuilder/
 # Perl module - variables.pl
 # (see the C++ version on my github)
-#
+# 
 # *** DISCLAIMER ***
 # I DO NOT OWN ANY RIGHTS OR I.P. CONTENT to ANY of the ideas i am referencing in this program, NOR do i own any data files.
 # ALL REFERENCED I.P. data files DO NOT EXIST on any of my servers or computers and are THEORETICAL AND USED TO LEARN TO PROGRAM, ONLY.
 # I DO NOT CLAIM ANY RIGHTS to ANY content about or from or with Paizo or Pathfinder 1st edition RPG game content, at all, WHATSOEVER
+# This is a data outline used for planning a future testing database of sample content.  This does NOT constitute any illegal infringement of copyright or IP law. This is only used for learning how to code.
 # *********************
 
 
@@ -54,7 +55,7 @@ say "Loading stats.";
 my @STATS = ("STR.ength", "DEX.terity", "CON.stitution", "INT.elligence", "WIS.dom", "CHA.risma", "APP.earance", "EDG.e", "HON.or");
 my @ASPECTS = ("Height", "Weight", "Skin", "Hair", "Eyes");
 my @DEFENSE = ("AC", "DR", "SR", "PR", "CMD");
-my @OFFENSE = ("BAB", "BAB.melee", "BAB.touch", "BAB.ranged", "BAB.rangedtouch", "CMB", "Spell.DC");
+my @OFFENSE = ("BAB", "BAB.melee", "BAB.melee.touch", "BAB.ranged", "BAB.ranged.touch", "CMB", "DC");
 
 
 # Character statistic abilities
@@ -68,36 +69,60 @@ my $STAT_APP;
 my $STAT_EDG;
 my $STAT_HON;
 
-my $Statistic_HDD;
+my $Statistic_HDD;      # dynamic HP per hitdice
+my $Statistic_HDD_bHP;  # as above HD + bonus HP
+my $Statistic_HP;       # static HP
+
+
 my $Statistic_AC;
 my $Statistic_DR;
 my $Statistic_SR;
 my $Statistic_PR;
 my $Statistic_BAB;
-my $Statistic_BAB_Touch;
+my $Statistic_BAB_MeleeTouch;
 my $Statistic_BAB_Ranged;
 my $Statistic_BAB_RangedTouch;
+# my $Statistic_BAB_DEXcaster; # monks / martial arts, rogues??
+# my $Statistic_BAB_INTcaster; # wizards and psions
+# my $Statistic_BAB_WIScaster; # clerics
+# my $Statistic_BAB_CHAcaster; # Oracles, Paladins, Wilders
+# my $Statistic_BAB_APPcaster; # beauty magic
+# my $Statistic_BAB_EDGcaster; # chaos / luck magic
+# my $Statistic_BAB_HONcaster; # Nobility societal cascade
 my $Statistic_CMB;
 my $Statistic_CMD;
 
 my $Statistic_Save_Reflex;
 my $Statistic_Save_Fortitude;
 my $Statistic_Save_Will;
+
 # May need to make per class
-my $Statistic_SpellDC;
+my $Statistic_DC; # used for spells and psionic powers
 
 my $Statistic_Movement;
-my $Statistic_Move;
+my $Statistic_Movement_modes;
+my $Statistic_Move_feet;
 my $Statistic_Move_squares;
-# my $Statistic_Move_x2;
+my $Statistic_Move_run_x;
 my $Statistic_Move_Jump;
+# my $Statistic_Move_Jump_height;
+# my $Statistic_Move_Jump_distance;
 my $Statistic_Move_Fly;
-my $Statistic_Move_Maneuverability;
+my $Statistic_Move_Fly_Maneuverability;
 my $Statistic_Move_Swim;
-my $Statistic_Move_Buoyancy;
+my $Statistic_Move_Swim_Buoyancy;
 my $Statistic_Move_Burrow;
+my $Statistic_Move_Burrow_Displacement;
+
+# PlaneJammer : PLaneScape + Spelljammer for Pathfinder
+# Source: https://planejammer.com/rules/
+my $Statistic_Move_PlaneJammer;             # 
+my $Statistic_Move_PlaneJammer_exhaust;     #
+
 my $Statistic_Move_Teleport;
+my $Statistic_Move_Teleport_Error;
 my $Statistic_Move_Thought;
+my $Statistic_Move_Thought_Error;
 
 
 # Character visible aspects of body
@@ -105,8 +130,9 @@ say "Loading aspects...";
 my $Aspect_age; 
 my $Aspect_age_appear; 
 my $Aspect_age_modifiers;
+my $Aspect_age_categories;
 my $Aspect_size;
-my $Aspect_size_shape;
+my $Aspect_size_shape; # dimensions: long, tall, wide, bulbous, singularity ??
 my $Aspect_size_reach;
 # my $Aspect_size_
 my $Aspect_height;
@@ -119,12 +145,15 @@ my $Aspect_tattoos;
 my $Aspect_deformities;
 my $Aspect_disabilities;
 my $Aspect_enhancements;
+my $Aspect_corruptions;
+my $Aspect_heads; 
 my $Aspect_arms; 
 my $Aspect_legs; 
 my $Aspect_wings;
 my $Aspect_fins;
 my $Aspect_claws;
-my @Aspect_movement_types = ("walk", "crawl", "double", "run", "climb", "jump", "fly", "burrow", "swim", "phase", "thrust", "thought", "teleport");
+my $Aspect_tails;
+my @Aspect_movement_types = ("walk", "crawl", "double", "run", "climb", "jump", "fly", "burrow", "swim", "phase", "thrust", "planejammer", "thought", "teleport");
 my $Aspect_speeds;
 my $Aspect_rested;
 # my $Aspect_maneuverability;
