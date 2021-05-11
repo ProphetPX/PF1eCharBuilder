@@ -1,4 +1,4 @@
-###!/usr/bin/perl.exe
+#!/usr/bin/env perl
 #
 # ppx pf1e perl - PPX PF1e Character Builder 
 # version 0.002a (CORE+) NON-MYTHIC NON-PFS
